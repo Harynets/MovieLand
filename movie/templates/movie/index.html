@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+    {% extends 'movie/base.html' %}
+<head>
+
+</head>
+<body>
+    {% block content %}
+    <div class = "container-fluid">
+        <div class = "row">
+            <div class="col-xl-2 bg-light"></div>                            
+            <div class="col-xl-8">
+                <br>
+                <div class = "row">
+                    {% for i in popular %}
+                        <div class = "col-xl-3 col-md-4 col-sm-6">
+                            <img src = "http://image.tmdb.org/t/p/w500/{{i.poster_path}}" class="img-fluid rounded">
+                            <p>{{i.title}}</p>  
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="col-xl-2 bg-light"></div>  
+        </div>
+    </div>
+    {% endblock %}
+</body>
+</html>
