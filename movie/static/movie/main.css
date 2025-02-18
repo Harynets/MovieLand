@@ -1,3 +1,7 @@
 #TMDB-Logo{
     width: 90px;
 }
+
+.description{
+    text-align: justify;
+}

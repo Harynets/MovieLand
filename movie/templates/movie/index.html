@@ -12,10 +12,12 @@
             <div class="col-xl-8">
                 <br>
                 <div class = "row">
-                    {% for i in popular %}
+                    {% for movie_value in popular %}
                         <div class = "col-xl-3 col-md-4 col-sm-6">
-                            <img src = "http://image.tmdb.org/t/p/w500/{{i.poster_path}}" class="img-fluid rounded">
-                            <p>{{i.title}}</p>  
+                            <a href = "{% url 'movie:movie' movie_id=movie_value.id movie_slug=movie_value.slug %}">
+                                <img src = "http://image.tmdb.org/t/p/w500{{movie_value.poster_path}}" class="img-fluid rounded" alt = "{{movie_value.title}}">
+                            </a>
+                            <h5>{{movie_value.title}}</h5>  
                         </div>
                     {% endfor %}
                 </div>

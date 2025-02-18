@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+    {% extends 'movie/base.html' %}
+<head>
+
+</head>
+<body>
+    {% block content %}
+
+        <div class="container-fluid">
+            <div class="row">
+                <div class = "col-xl-2 bg-light"></div>             
+                <div class = "col-xl-8">
+                    <br>
+                    <div class="row">
+                        <div class="col-3">
+                            <img src = "http://image.tmdb.org/t/p/w500{{movie.poster_path}}" class = "img-fluid rounded">
+                        </div>
+
+                        <div class="col-9">
+                            <h3>{{movie.title}}</h3>
+                            {% for genre in movie.genres %}
+                            <span class="badge text-bg-primary"><h6 class = "py-0 my-0">{{genre.name}}</h6></span>
+                            {% endfor %}
+                            <h6 class = "mt-1">Дата виходу: {{movie.release_date}}</h6>
+                            <h6>Тривалість фільму: {{movie.runtime}} хв.</h6>
+                            <h6>Рейтинг: {{movie.vote_average}}</h6>
+                            <h6>{{movie.tagline}}</h6>                       
+                            <p class = "description">{{movie.overview}}</p>
+                            <button type="button" class="btn btn-outline-success">Додати в список перегляду</button>
+                        </div>
+
+                        <div class="col"></div>
+                            <h2 class = "my-2">Актори:</h2>
+                        {% for actor in cast %}
+
+                            <div class="col-2">           
+                                <div class="card my-2">
+                                    <img src="http://image.tmdb.org/t/p/w500{{actor.profile_path}}" class="card-img-top img-fluid" alt="{{actor.name}}">
+                                    <div class="card-body">
+                                    <h5 class="card-title">{{actor.name}}</h5>
+                                    <p class="card-text">{{actor.character}}</p>
+
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}                       
+
+                    </div>
+                </div>
+                <div class = "col-xl-2 bg-light"></div>
+            </div>
+        </div>
+    {% endblock %}
+</body>
+</html>
