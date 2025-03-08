@@ -42,3 +42,40 @@ def movie(request, movie_id, movie_slug):
     }
 
     return render(request, "movie/movie.html", context)
+
+
+def person(request, person_id, person_slug):
+    tmdb.API_KEY = config("TMDB_API_KEY")
+
+    # check if person_id exists
+    try:
+        person_ = tmdb.People(person_id)
+
+        # correct slug in the url if it is wrong
+        if (correct_person_slug := slugify(tmdb.People(person_id).info()["name"])) != person_slug:
+           return redirect('movie:person', person_id=person_id, person_slug=correct_person_slug)
+
+    except requests.exceptions.HTTPError:
+        raise Http404("Person is not found")
+
+    persons_movies = person_.movie_credits(language="uk-UA")
+
+    filmography = dict.fromkeys({dict_["department"] for dict_ in persons_movies["crew"]}, [])
+
+    # add movies in which person has crew role
+    for movie_ in persons_movies["crew"]:
+        if movie_.get("poster_path") and movie_.get("release_date"):
+            filmography[movie_["department"]].append(movie_)
+
+    # add movies in which person has acting role
+    if persons_movies["cast"]:
+        filmography["Acting"] = [item for item in persons_movies["cast"] if item.get("poster_path") and item.get("release_date")]
+    # sort each movie in category by movie release date
+    filmography = {key: sorted(value, key=lambda item: item["release_date"], reverse=True) for key, value in filmography.items()}
+
+    context = {
+        "person": person_.info(language="uk-UA"),
+        "filmography": dict(sorted(filmography.items(), key=lambda item: len(item[1]), reverse = True))
+    }
+
+    return render(request, "movie/person.html", context)

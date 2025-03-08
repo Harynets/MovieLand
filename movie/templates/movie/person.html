@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+    {% extends 'movie/base.html' %}
+<head>
+
+</head>
+<body>
+    {% block content %}
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-xl-2 bg-light"></div>                            
+            <div class="col-xl-8">
+                <div class="row">
+                    <div class="col-3">
+                        <img src = "http://image.tmdb.org/t/p/w500{{person.profile_path}}" class="rounded img-fluid">
+                    </div>
+                    <div class="col-9">
+                        <h2>{{person.name}}</h2>
+                        <h6>Дата народження: {{person.birthday}}</h6>
+                        <p class = "description">{{person.biography}}</p>
+                    </div>
+                        {% for key, value in filmography.items %}
+                            <h2 class = "my-3">{{key}}:</h2>
+                            {% for item in value %}
+                                <div class="col-lg-1 col-2">
+                                    <a href = "{% url 'movie:movie' movie_id=item.id movie_slug='-' %}">
+                                        <img src = "http://image.tmdb.org/t/p/w500{{item.poster_path}}" class = "rounded img-fluid">
+                                    </a>
+                                </div>
+                                <div class="col">
+                                    <a class="link-body-emphasis link-underline-opacity-0 " href = "{% url 'movie:movie' movie_id=item.id movie_slug='-' %}">
+                                        <h5>{{item.title}}</h5>
+                                    </a>
+                                    <p>Оцінка: {{item.vote_average}}</p>
+                                    <p>Дата виходу: {{item.release_date}}</p>                                     
+                                </div>
+                                <hr class="border-bottom border-2 border-dark rounded my-3">
+                            {% endfor %}
+                        {% endfor %}                    
+                </div>
+            </div>
+            <div class="col-xl-2 bg-light"></div>   
+        </div>    
+    </div>
+    {% endblock %}
+</body>
+</html>
