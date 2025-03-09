@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+    {% extends 'movie/base.html' %}
+<head>
+</head>
+<body>
+    {% block content %} 
+    <div class="container flex-grow-1">
+        <div class="row">
+            <div class="col-lg-4"></div>
+            <div class="col-lg-4 p-4 border rounded shadow-sm my-4">
+                <h2 class = "text-center">Увійти:</h2>
+                <form method="post">
+                    {% csrf_token %}
+                    {% for field in form %}
+                        <label for="{{field.id_for_label}}" class="form-label my-2">{{field.label}}</label>
+                        {{field}}               
+                    {% endfor %}
+                    {% if form.non_field_errors %}
+                        <div class = "alert alert-danger mt-3">
+                            <ul>
+                                {% for error in form.non_field_errors %}
+                                    <li>{{error}}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    {% endif %}
+                    <div class="d-flex justify-content-center">
+                        <input type = "submit" value = "Увійти" class="btn btn-outline-success my-3">
+                    </div>
+                </form>
+                <p>Немає акаунту? <a class = "link-underline link-underline-opacity-0" href = "{% url 'movie:register' %}">Зареєструйтесь!</a></p>
+            </div>
+            <div class="col-lg-4"></div>
+        </div>
+    </div>
+    {% endblock %}
+</body>
+</html>

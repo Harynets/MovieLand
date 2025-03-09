@@ -1,4 +1,6 @@
 import requests
+from django.contrib.auth import login
+from django.contrib.auth.views import LoginView
 from django.http import Http404
 from django.shortcuts import render, redirect
 from decouple import config
@@ -6,7 +8,7 @@ import tmdbsimple as tmdb
 from django.urls import reverse_lazy
 from django.utils.text import slugify
 from django.views.generic import CreateView
-from movie.forms import RegisterUserForm
+from movie.forms import *
 
 
 def index(request):
@@ -90,5 +92,14 @@ class RegisterUser(CreateView):
     success_url = reverse_lazy("movie:index")
 
     def form_valid(self, form):
-        form.save()  # add new user to database
+        user = form.save()  # add new user to database
+        login(self.request, user)  # auto login
         return redirect("movie:index")
+
+
+class LoginUser(LoginView):
+    form_class = AuthenticationUserForm
+    template_name = "movie/login.html"
+
+    def get_success_url(self):
+        return reverse_lazy("movie:index")
