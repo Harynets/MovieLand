@@ -1,5 +1,5 @@
 import requests
-from django.contrib.auth import login
+from django.contrib.auth import login, logout
 from django.contrib.auth.views import LoginView
 from django.http import Http404
 from django.shortcuts import render, redirect
@@ -103,3 +103,8 @@ class LoginUser(LoginView):
 
     def get_success_url(self):
         return reverse_lazy("movie:index")
+
+
+def logout_user(request):
+    logout(request)
+    return redirect("movie:login")
