@@ -3,7 +3,10 @@ from django.http import Http404
 from django.shortcuts import render, redirect
 from decouple import config
 import tmdbsimple as tmdb
+from django.urls import reverse_lazy
 from django.utils.text import slugify
+from django.views.generic import CreateView
+from movie.forms import RegisterUserForm
 
 
 def index(request):
@@ -79,3 +82,13 @@ def person(request, person_id, person_slug):
     }
 
     return render(request, "movie/person.html", context)
+
+
+class RegisterUser(CreateView):
+    form_class = RegisterUserForm
+    template_name = "movie/register.html"
+    success_url = reverse_lazy("movie:index")
+
+    def form_valid(self, form):
+        form.save()  # add new user to database
+        return redirect("movie:index")
