@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+    {% extends 'movie/base.html' %}
+    {% load static %}
+    <head>
+
+    </head>
+    <body>
+        {% block content %}
+        <div class="container-fluid">
+            <div class="row">
+                <div class = "col-xl-2 bg-light"></div>             
+                    <div class = "col-xl-8">
+                        <div class="row my-3">
+                            <div class="col-3">
+                                <img class = "img-fluid rounded" src = "{% static 'movie/images/default_profile_image.png' %}" alt = "user profile image">
+                            </div>
+                            <div class="col">
+                                <h2>{{user.username}}</h2>
+                                <h5>Кількість рецензій: {{number_of_reviews}}</h5>
+                            </div>                            
+                        </div>    
+
+                        <h4 class="my-3">Останні рецензії користувача {{user.username}}:</h4>
+                        <hr class="border-bottom border-2 border-dark rounded my-3">
+                        {% for review in user_reviews %}
+                            <div class = "my-1 rounded p-1 row">
+                                <div class="col-2 px-0">
+                                    <a href = "{% url 'movie:movie' movie_id=review.movie_id movie_slug='-' %}">
+                                        <img src = "http://image.tmdb.org/t/p/w500{{review.poster_path}}" class = "img-fluid rounded" alt = "movie poster">
+                                    </a>
+                                </div>
+                                <div class="col d-flex flex-column">
+                                    <a class="link-body-emphasis link-underline-opacity-0 " href = "{% url 'movie:movie' movie_id=review.movie_id movie_slug='-' %}">
+                                        <h5>{{review.movie_name}}</h5>
+                                    </a>
+                                    <p class = "description flex-grow-1">{{review.text_review}}</p>
+                                    <h6>Оцінка: {{review.rating}}/10</h6>
+                                    <h6>{{review.date}}</h6>  
+                                </div>                            
+                            </div>
+                            <hr class="border-bottom border-2 border-dark rounded my-3">
+                        {% endfor %}
+                    </div>
+                <div class = "col-xl-2 bg-light"></div>  
+            </div> 
+        </div>
+            
+        {% endblock %}
+    </body>
+</html>

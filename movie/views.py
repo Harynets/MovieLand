@@ -3,7 +3,7 @@ from django.contrib.auth import login, logout
 from django.contrib.auth.views import LoginView
 from django.forms import model_to_dict
 from django.http import Http404
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from decouple import config
 import tmdbsimple as tmdb
 from django.urls import reverse_lazy
@@ -130,3 +130,20 @@ class LoginUser(LoginView):
 def logout_user(request):
     logout(request)
     return redirect("movie:login")
+
+def profile(request, username):
+    tmdb.API_KEY = config("TMDB_API_KEY")
+    user = get_object_or_404(User.objects.filter(username=username))
+    user_reviews = Review.objects.filter(user=user).order_by("-date").values()
+    number_of_reviews = len(user_reviews)
+    for review in user_reviews[:3]:
+        movie_ = tmdb.Movies(review["movie_id"]).info(language="uk-UA")
+        review["movie_name"] = movie_["title"]
+        review["poster_path"] = movie_["poster_path"]
+
+    context = {
+        "user":user,
+        "user_reviews": user_reviews[:3],
+        "number_of_reviews": number_of_reviews
+    }
+    return render(request, "movie/profile.html", context)
