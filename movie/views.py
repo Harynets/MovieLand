@@ -1,6 +1,7 @@
 import requests
 from django.contrib.auth import login, logout
 from django.contrib.auth.views import LoginView
+from django.forms import model_to_dict
 from django.http import Http404
 from django.shortcuts import render, redirect
 from decouple import config
@@ -9,6 +10,7 @@ from django.urls import reverse_lazy
 from django.utils.text import slugify
 from django.views.generic import CreateView
 from movie.forms import *
+from movie.models import *
 
 
 def index(request):
@@ -28,6 +30,15 @@ def index(request):
 
 
 def movie(request, movie_id, movie_slug):
+    if request.method == "POST":
+        review_form = ReviewForm(request.POST)
+        if review_form.is_valid():
+            form_data = review_form.cleaned_data
+            Review(user=request.user, movie_id=movie_id, **form_data).save()
+            return redirect(request.path)
+    else:
+        review_form = ReviewForm()
+
     tmdb.API_KEY = config("TMDB_API_KEY")
 
     # check if movie_id exists
@@ -41,9 +52,20 @@ def movie(request, movie_id, movie_slug):
     except requests.exceptions.HTTPError:
         raise Http404("Movie is not found")
 
+    # get all reviews except review that written by user that requested page
+    reviews = Review.objects.all().filter(movie_id=movie_id).exclude(user=request.user if request.user.is_authenticated else None).values("user__username", "rating", "text_review", "date")
+
+    # get review written by user that requested page
+    current_user_review = None
+    if Review.objects.filter(user=request.user.id, movie_id=movie_id).exists():
+        current_user_review = Review.objects.filter(user=request.user.id, movie_id=movie_id).values("rating", "text_review", "date")
+
     context = {
         "movie": movie_.info(language="uk-UA"),
         "cast": movie_.credits(language="uk-UA")["cast"][:12],
+        "form": review_form,
+        "reviews": reviews,
+        "current_user_review": current_user_review
     }
 
     return render(request, "movie/movie.html", context)

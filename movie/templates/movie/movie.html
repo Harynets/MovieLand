@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html>
     {% extends 'movie/base.html' %}
+    {% load static %}
 <head>
 
 </head>
 <body>
     {% block content %}
-
         <div class="container-fluid">
             <div class="row">
                 <div class = "col-xl-2 bg-light"></div>             
@@ -30,27 +30,88 @@
                             <button type="button" class="btn btn-outline-success">Додати в список перегляду</button>
                         </div>
 
-                        <div class="col"></div>
                             <h2 class = "my-2">Актори:</h2>
                         {% for actor in cast %}
-
                             <div class="col-2">           
                                 <div class="card my-2">
                                     <img src="http://image.tmdb.org/t/p/w500{{actor.profile_path}}" class="card-img-top img-fluid" alt="{{actor.name}}">
                                     <div class="card-body">
                                     <h5 class="card-title">{{actor.name}}</h5>
                                     <p class="card-text">{{actor.character}}</p>
-
                                     </div>
                                 </div>
                             </div>
-                        {% endfor %}                       
+                        {% endfor %}
+                        <h2 class = "my-2">Рецензії:</h2>                
+                        {% for review in reviews %}
+                            <div class = "border border-dark">
+                                <h6>Автор: {{review.user__username}}</h6>
+                                <p>{{review.text_review}}</p>
+                                <h6>Оцінка: {{review.rating}}/10</h6>
+                                <h6>{{review.date}}</h6>                              
+                            </div>
+                        {% endfor %}
 
+                        {% if user.is_authenticated and current_user_review %}
+
+                        <h2>Ваша рецензія:</h2>
+                        {% for review in current_user_review %}
+                            <p>{{review.text_review}}</p>
+                            <h6>Оцінка: {{review.rating}}</h6>
+                            <h6>{{review.date}}</h6>
+                        {% endfor %}
+
+                        {% elif user.is_authenticated and not current_user_review %}
+
+                        <h2 class = "my-2">Напишіть свою рецензію:</h2>
+                        <form method="post" id = "review_form">
+                            {% csrf_token %}
+                            {% for field in form %}
+                                {{field}}
+                            {% endfor %}
+                            <div class="row">
+                                <div class="col-2"></div>
+                                    <div class = "stars col-8 my-2">
+                                        {% for i in '0123456789'|make_list %}                                         
+                                            <svg id = "star_{{ forloop.counter }}" class = "star" version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" 
+                                                viewBox="-5 -0.7 57.94 49.5" xml:space="preserve">
+                                            <path d="M26.285,2.486l5.407,10.956c0.376,0.762,1.103,1.29,1.944,1.412l12.091,1.757
+                                                c2.118,0.308,2.963,2.91,1.431,4.403l-8.749,8.528c-0.608,0.593-0.886,1.448-0.742,2.285l2.065,12.042
+                                                c0.362,2.109-1.852,3.717-3.746,2.722l-10.814-5.685c-0.752-0.395-1.651-0.395-2.403,0l-10.814,5.685
+                                                c-1.894,0.996-4.108-0.613-3.746-2.722l2.065-12.042c0.144-0.837-0.134-1.692-0.742-2.285l-8.749-8.528
+                                                c-1.532-1.494-0.687-4.096,1.431-4.403l12.091-1.757c0.841-0.122,1.568-0.65,1.944-1.412l5.407-10.956
+                                                C22.602,0.567,25.338,0.567,26.285,2.486z"/>
+                                            </svg>
+                                        {% endfor %}
+                                    </div>
+                                <div class="col-2"></div>
+                            </div>
+                            <input type = "submit" value = "Опублікувати" class="btn btn-outline-success my-3">
+                                                       
+                            {% for field in form %}
+                                {% for error in field.errors %}                          
+                                    {{error}}
+                                {% endfor %}
+                            {% endfor %}
+                            
+                            <div id = "review_form_errors" class = "alert alert-danger mt-3 d-none"></div>
+                        </form>
+
+                        {% else %}
+
+                            <h2>Увійдіть в акаунт, щоб залишити рецензію.</h2>
+                            
+                        {% endif %}                                     
                     </div>
                 </div>
                 <div class = "col-xl-2 bg-light"></div>
             </div>
         </div>
+    {% endblock %}
+    {% block scripts %}
+        {{ block.super }}
+        <script src = "{% static 'movie/stars.js' %}"></script>
+        <script src = "{% static 'movie/validate_movie_form.js' %}"></script>
     {% endblock %}
 </body>
 </html>

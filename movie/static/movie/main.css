@@ -5,3 +5,16 @@
 .description{
     text-align: justify;
 }
+
+.star{
+    width: 9%;
+    fill: white; 
+    stroke: grey; 
+    stroke-width: 3;
+    cursor: pointer;
+}
+
+.stars{
+    display: flex;
+    justify-content: center;
+}
