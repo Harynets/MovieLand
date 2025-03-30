@@ -4,3 +4,4 @@ movie/migrations/__pycache__/
 MovieLand/.env
 MovieLand/__pycache__/
 db.sqlite3
+media/
