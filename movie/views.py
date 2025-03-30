@@ -132,6 +132,14 @@ def logout_user(request):
     return redirect("movie:login")
 
 def profile(request, username):
+    if request.method == "POST":
+        form = ProfileUserForm(request.POST, request.FILES)
+        if form.is_valid():
+            profile_user, created = ProfileUser.objects.get_or_create(user=request.user)
+            profile_user.profile_image = request.FILES["profile_image"]
+            profile_user.save()
+        return redirect("movie:profile", username=username)
+
     tmdb.API_KEY = config("TMDB_API_KEY")
     user = get_object_or_404(User.objects.filter(username=username))
     user_reviews = Review.objects.filter(user=user).order_by("-date").values()
@@ -141,9 +149,16 @@ def profile(request, username):
         review["movie_name"] = movie_["title"]
         review["poster_path"] = movie_["poster_path"]
 
+    # try to get user profile image
+    profile_image = ProfileUser.objects.filter(user=user).values().first()
+    # if no image return None else return image
+    profile_image = profile_image and profile_image["profile_image"]
+
     context = {
-        "user":user,
+        "profile_user":user,
         "user_reviews": user_reviews[:3],
-        "number_of_reviews": number_of_reviews
+        "number_of_reviews": number_of_reviews,
+        "profile_image": profile_image,
+        "form": ProfileUserForm()
     }
     return render(request, "movie/profile.html", context)
