@@ -2,8 +2,10 @@ from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.models import User
 from django import forms
 from django.core.exceptions import ValidationError
+from django.core.files.base import ContentFile
 from django.utils.translation import gettext as _
-
+from PIL import Image
+from io import BytesIO
 
 class RegisterUserForm(UserCreationForm):
     username = forms.CharField(label="Ім'я користувача:", widget=forms.TextInput(
@@ -40,3 +42,15 @@ class ReviewForm(forms.Form):
             raise ValidationError(_("Review can not be smaller than 25 symbols."))
 
         return text_review
+
+
+class ProfileUserForm(forms.Form):
+    profile_image = forms.ImageField(label="Оберіть фото профілю", widget=forms.ClearableFileInput(attrs={"class": "form-control my-3", "accept" : "image/png, image/jpg, image/jpeg, image/x-icon"}))
+
+    def clean_profile_image(self):
+        profile_image = self.cleaned_data["profile_image"]
+
+        if not profile_image.name.endswith((".jpg", ".png", ".jpeg", ".ico")):
+            raise ValidationError((_("This file format is not allowed")))
+
+        return profile_image
