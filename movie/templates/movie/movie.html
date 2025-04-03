@@ -9,61 +9,127 @@
     {% block content %}
         <div class="container-fluid">
             <div class="row">
-                <div class = "col-xl-2 bg-light"></div>             
+                <div class = "col-xl-2"></div>             
                 <div class = "col-xl-8">
                     <br>
                     <div class="row">
                         <div class="col-3">
+                            {% if movie.poster_path %}
                             <img src = "http://image.tmdb.org/t/p/w500{{movie.poster_path}}" class = "img-fluid rounded">
+                            {% else %}
+                            <img src = "{% static 'movie/images/default_movie_image.jpg' %}" class = "img-fluid rounded">                            
+                            {% endif %}
                         </div>
 
                         <div class="col-9">
                             <h3>{{movie.title}}</h3>
                             {% for genre in movie.genres %}
-                            <span class="badge text-bg-primary"><h6 class = "py-0 my-0">{{genre.name}}</h6></span>
+                            <span class="badge text-bg-primary mt-1"><h6 class = "py-0 my-0">{{genre.name}}</h6></span>
                             {% endfor %}
                             <h6 class = "mt-1">Дата виходу: {{movie.release_date}}</h6>
                             <h6>Тривалість фільму: {{movie.runtime}} хв.</h6>
                             <h6>Рейтинг: {{movie.vote_average}}</h6>
+
+                            <div class="row">
+                                {% if crew.Director %}
+                                    <div class="col-6 col-sm-4 col-md-3 col-lg-2">
+                                        <h6>Режисер: <a class="link-body-emphasis link-underline-opacity-0 d-flex" href = "{% url 'movie:person' person_id=crew.Director.id person_slug='-' %}">{{crew.Director.name}}</a></h6>
+                                    </div>
+                                {% endif %}
+                                {% if crew.Screenplay %}
+                                    <div class="col-6 col-sm-4 col-md-3 col-lg-2">
+                                        <h6>Сценарист: <a class="link-body-emphasis link-underline-opacity-0 d-flex" href = "{% url 'movie:person' person_id=crew.Screenplay.id person_slug='-' %}">{{crew.Screenplay.name}}</a></h6>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
                             <h6>{{movie.tagline}}</h6>                       
                             <p class = "description">{{movie.overview}}</p>
-                            <button type="button" class="btn btn-outline-success">Додати в список перегляду</button>
+                            <button type="button" class="btn btn-outline-success align-center">Додати в список перегляду</button>                                                  
                         </div>
+               
+                            <h3 class = "my-2">У головних ролях:</h3>             
+                            {% for actor in cast %}
+                                <div class="col-xxl-2 col-lg-3 col-sm-4 col-6 d-flex">
+                                    <a class="link-body-emphasis link-underline-opacity-0 d-flex" href = "{% url 'movie:person' person_id=actor.id person_slug='-' %}">           
+                                        <div class="card my-2 shadow-sm">
+                                            {% if actor.profile_path %}
+                                                <img src="http://image.tmdb.org/t/p/w500{{actor.profile_path}}" class="card-img-top img-fluid" alt="{{actor.name}}">
+                                            {% else %}
+                                                <img src="{% static 'movie/images/default_person_image.png' %}" class="card-img-top img-fluid" alt="{{actor.name}}">                                       
+                                            {% endif %}
+                                            
+                                            <div class="card-body">
+                                            <h5 class="card-title">{{actor.name}}</h5>
+                                            <p class="card-text">{{actor.character}}</p>
+                                            </div>
+                                        </div>
+                                    </a>
+                                </div>
+                            {% endfor %}
+                            <hr class="border-bottom border-1 border-dark my-3">
+                      
+                        <h3 class = "my-2">Рецензії:</h3>
+                        {% if not reviews and not current_user_review %}
+                            <p class = "mb-0">Рецензій поки немає. Станьте першими!</p>
+                        {% endif %} 
+                                    
+                            {% for review in reviews %}
+                                <div class="col-lg-6 d-flex">
+                                    <div class = "border border-secondary rounded shadow-sm p-3 mx-1 my-3 flex-grow-1 d-flex flex-column w-100">
+                                        <div class="row">
+                                            <div class="col-md-3 col-4">
+                                                <a href = "{% url 'movie:profile' username=review.user__username %}">
+                                                    {% if review.user__profileuser__profile_image %}
+                                                    <img src="/media/{{review.user__profileuser__profile_image}}" class = "rounded-circle img-fluid">
+                                                    {% else %}
+                                                    <img src="{% static 'movie/images/default_profile_image.png' %}" class = "rounded-circle img-fluid">                             
+                                                    {% endif %}
+                                                </a>
+                                            </div>
+                                            <div class="col">
+                                                <a href = "{% url 'movie:profile' username=review.user__username %}" class="link-body-emphasis link-underline-opacity-0 d-flex">
+                                                    <h6>Автор: {{review.user__username}}</h6>
+                                                </a>
 
-                            <h2 class = "my-2">Актори:</h2>
-                        {% for actor in cast %}
-                            <div class="col-2">           
-                                <div class="card my-2">
-                                    <img src="http://image.tmdb.org/t/p/w500{{actor.profile_path}}" class="card-img-top img-fluid" alt="{{actor.name}}">
-                                    <div class="card-body">
-                                    <h5 class="card-title">{{actor.name}}</h5>
-                                    <p class="card-text">{{actor.character}}</p>
+                                                <span class="d-flex">
+                                                    <h6 class = "m-0">Оцінка:</h6>
+                                                    <svg class = "small-rating-star mx-1" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" 
+                                                        viewBox="-5 -0.7 57.94 49.5" xml:space="preserve">
+                                                    <path d="M26.285,2.486l5.407,10.956c0.376,0.762,1.103,1.29,1.944,1.412l12.091,1.757
+                                                        c2.118,0.308,2.963,2.91,1.431,4.403l-8.749,8.528c-0.608,0.593-0.886,1.448-0.742,2.285l2.065,12.042
+                                                        c0.362,2.109-1.852,3.717-3.746,2.722l-10.814-5.685c-0.752-0.395-1.651-0.395-2.403,0l-10.814,5.685
+                                                        c-1.894,0.996-4.108-0.613-3.746-2.722l2.065-12.042c0.144-0.837-0.134-1.692-0.742-2.285l-8.749-8.528
+                                                        c-1.532-1.494-0.687-4.096,1.431-4.403l12.091-1.757c0.841-0.122,1.568-0.65,1.944-1.412l5.407-10.956
+                                                        C22.602,0.567,25.338,0.567,26.285,2.486z"/>
+                                                    </svg>
+                                                    <h6 class = "m-0">{{review.rating}}</h6>
+                                                </span>
+                                            </div>
+                                            <hr class="border-bottom border-1 border-dark my-3">
+                                        </div>
+                                        <p class="description flex-grow-1">{{review.text_review}}</p>
+                                        <div class="d-flex date-container justify-content-end">
+                                            <h6>{{review.date}}</h6>    
+                                        </div>                          
                                     </div>
                                 </div>
-                            </div>
-                        {% endfor %}
-                        <h2 class = "my-2">Рецензії:</h2>                
-                        {% for review in reviews %}
-                            <div class = "border border-dark">
-                                <h6>Автор: {{review.user__username}}</h6>
-                                <p>{{review.text_review}}</p>
-                                <h6>Оцінка: {{review.rating}}/10</h6>
-                                <h6>{{review.date}}</h6>                              
-                            </div>
-                        {% endfor %}
-
+                            {% endfor %}
+                            
                         {% if user.is_authenticated and current_user_review %}
-
-                        <h2>Ваша рецензія:</h2>
-                        {% for review in current_user_review %}
-                            <p>{{review.text_review}}</p>
-                            <h6>Оцінка: {{review.rating}}</h6>
-                            <h6>{{review.date}}</h6>
-                        {% endfor %}
+                        <h3>Ваша рецензія:</h3>
+                        <div class="p-3">
+                            <div class = "border border-secondary rounded shadow-sm p-3">
+                                {% for review in current_user_review %}
+                                    <p class="description">{{review.text_review}}</p>
+                                    <h6>Оцінка: {{review.rating}}</h6>
+                                    <h6>{{review.date}}</h6>
+                                {% endfor %}
+                            </div>
+                        </div>
 
                         {% elif user.is_authenticated and not current_user_review %}
-
-                        <h2 class = "my-2">Напишіть свою рецензію:</h2>
+                        <h3 class = "my-2">Напишіть свою рецензію:</h3>
                         <form method="post" id = "review_form">
                             {% csrf_token %}
                             {% for field in form %}
@@ -71,7 +137,7 @@
                             {% endfor %}
                             <div class="row">
                                 <div class="col-2"></div>
-                                    <div class = "stars col-8 my-2">
+                                    <div class = "stars col-md-8 my-2">
                                         {% for i in '0123456789'|make_list %}                                         
                                             <svg id = "star_{{ forloop.counter }}" class = "star" version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" 
                                                 viewBox="-5 -0.7 57.94 49.5" xml:space="preserve">
@@ -92,19 +158,59 @@
                                 {% for error in field.errors %}                          
                                     {{error}}
                                 {% endfor %}
-                            {% endfor %}
-                            
+                            {% endfor %}                       
                             <div id = "review_form_errors" class = "alert alert-danger mt-3 d-none"></div>
                         </form>
 
                         {% else %}
-
-                            <h2>Увійдіть в акаунт, щоб залишити рецензію.</h2>
+                        <div class="alert alert-light my-3">
+                            <h5 class = "text-dark"><a class ="" href = "{% url 'movie:login' %}">Увійдіть</a> в акаунт, щоб залишити рецензію.</h5>
+                        </div>
+                        {% endif %}    
+                        
+                        {% if similar_movies %}
+                            <h3 class = "mt-2">Схоже:</h3>                               
+                            <div id="carousel" class="carousel carousel-dark slide mb-1">
+                                <div class="carousel-inner">
+                                    {% for movie in similar_movies %}
+                                        {% if forloop.first or forloop.counter0|divisibleby:6 %}
+                                            <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                                                <div class="d-flex justify-content-center mx-4 row row-cols-3 row-cols-lg-6">
+                                        {% endif %}
+                                        
+                                        <a class="link-body-emphasis link-underline-opacity-0 d-flex px-1" href = "{% url 'movie:movie' movie_id=movie.id movie_slug='-' %}">             
+                                            <div class="card shadow-sm position-relative z-2 my-2">
+                                                {% if movie.poster_path %}
+                                                    <img class="card-img-top img-fluid" src="http://image.tmdb.org/t/p/w500{{movie.poster_path}}" alt="Movie poster">
+                                                {% else %}
+                                                    <img src = "{% static 'movie/images/default_movie_image.jpg' %}" class = "img-fluid rounded">                            
+                                                {% endif %}
+                                                <div class="card-body">
+                                                    <h5 class="card-title">{{movie.title}}</h5>
+                                                </div>
+                                            </div>
+                                        </a>
+                                        
+                                        {% if forloop.counter|divisibleby:6 or forloop.last %}
+                                                </div>
+                                            </div>
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
                             
-                        {% endif %}                                     
+                                <button class="carousel-control-prev justify-content-start position-absolute z-1" type="button" data-bs-target="#carousel" data-bs-slide="prev">
+                                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                    <span class="visually-hidden">Previous</span>
+                                </button>
+                                <button class="carousel-control-next justify-content-end" type="button" data-bs-target="#carousel" data-bs-slide="next">
+                                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                    <span class="visually-hidden">Next</span>
+                                </button>
+                            </div>
+                        {% endif %}
                     </div>
-                </div>
-                <div class = "col-xl-2 bg-light"></div>
+                </div> 
+                <div class = "col-xl-2"></div>
             </div>
         </div>
     {% endblock %}

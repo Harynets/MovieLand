@@ -18,3 +18,10 @@
     display: flex;
     justify-content: center;
 }
+
+.small-rating-star{
+    width: 1.1em;
+    fill: #FFD700; 
+    stroke: grey; 
+    stroke-width: 1;
+}

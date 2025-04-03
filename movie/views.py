@@ -1,7 +1,6 @@
 import requests
 from django.contrib.auth import login, logout
 from django.contrib.auth.views import LoginView
-from django.forms import model_to_dict
 from django.http import Http404
 from django.shortcuts import render, redirect, get_object_or_404
 from decouple import config
@@ -53,16 +52,21 @@ def movie(request, movie_id, movie_slug):
         raise Http404("Movie is not found")
 
     # get all reviews except review that written by user that requested page
-    reviews = Review.objects.all().filter(movie_id=movie_id).exclude(user=request.user if request.user.is_authenticated else None).values("user__username", "rating", "text_review", "date")
+    reviews = Review.objects.all().filter(movie_id=movie_id).exclude(user=request.user if request.user.is_authenticated else None).values("user__username", "user__profileuser__profile_image", "rating", "text_review", "date")
+
+    # get director and screenplay
+    crew = {item["job"]: item for item in movie_.credits()["crew"] if item["job"] == "Director" or item["job"] == "Screenplay"}
 
     # get review written by user that requested page
     current_user_review = None
     if Review.objects.filter(user=request.user.id, movie_id=movie_id).exists():
         current_user_review = Review.objects.filter(user=request.user.id, movie_id=movie_id).values("rating", "text_review", "date")
-
+    
     context = {
         "movie": movie_.info(language="uk-UA"),
         "cast": movie_.credits(language="uk-UA")["cast"][:12],
+        "crew": crew,
+        "similar_movies": movie_.similar_movies(language="uk-UA")["results"][:12],
         "form": review_form,
         "reviews": reviews,
         "current_user_review": current_user_review
